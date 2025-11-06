@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
-import MarketplaceSlots from "../components/MarketplaceSlots";
+import MarketplaceSlots from "../components/MarketPlaceSlots";
 import SwapRequestModal from "../components/SwapRequestModal";
 import api from "../utils/api";
 import { useApp } from '../context/AppContext';
