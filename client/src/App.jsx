@@ -5,7 +5,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Marketplace from './pages/Marketplace';
-import Notifications from './pages//Notification';
+import Notifications from './pages/Notifications';
 
 function App() {
   return (
