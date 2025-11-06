@@ -30,6 +30,15 @@ function IncomingRequestCard({ request, onAccept, onReject, loading }) {
     }
   };
 
+  if (error) {
+    return (
+      <div className="bg-red-100 border border-red-400 rounded p-4 text-red-800">
+        {error}
+      </div>
+    );
+  }
+
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
       <div className="mb-4">
