@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -11,7 +11,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,19 +19,26 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+   try { 
     setError('');
     setLoading(true);
 
-    const result = await login(formData.email, formData.password);
+    await login(formData.email, formData.password);
 
     setLoading(false);
+  } catch (error) {
+      setError(error.message || 'Login failed');
+  } finally {
+     setLoading(false);
+  }
+};
 
-    if (result.success) {
+   useEffect(() => {
+    if (isAuthenticated) {
       navigate('/dashboard');
-    } else {
-      setError(result.message);
     }
-  };
+  }, [isAuthenticated, navigate]);
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
