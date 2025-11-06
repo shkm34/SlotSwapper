@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import MarketplaceSlots from "../components/MarketplaceSlots";
 import SwapRequestModal from "../components/SwapRequestModal";
 import api from "../utils/api";
+import { useApp } from '../context/AppContext';
 
 function Marketplace() {
   const [slots, setSlots] = useState([]);
@@ -12,6 +13,8 @@ function Marketplace() {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+
+   const { refreshTrigger, triggerRefresh } = useApp();
 
   // Fetch marketplace slots-
   // only SWAPPABLE slots from other users
@@ -43,7 +46,7 @@ function Marketplace() {
   useEffect(() => {
     fetchMarketplaceSlots();
     fetchUserEvents();
-  }, []);
+  }, [refreshTrigger]);
 
   // Handle request swap button click
   const handleRequestSwap = (slot) => {
@@ -61,9 +64,7 @@ function Marketplace() {
 
       setSuccessMessage("Swap request sent successfully!");
 
-      // Refresh marketplace and user events
-      await fetchMarketplaceSlots();
-      await fetchUserEvents();
+      triggerRefresh(); // Trigger global refresh
 
       // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(""), 3000);
@@ -102,10 +103,7 @@ function Marketplace() {
             Found {slots.length} swappable slot{slots.length !== 1 ? "s" : ""}
           </p>
           <button
-            onClick={() => {
-              fetchMarketplaceSlots();
-              fetchUserEvents();
-            }}
+            onClick={triggerRefresh}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Refresh

@@ -2,27 +2,33 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
+import { useApp } from '../context/AppContext';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [incomingCount, setIncomingCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const { triggerRefresh, refreshTrigger } = useApp();
 
   useEffect(() => {
     const fetchNotificationCount = async () => {
       try {
+        setLoading(true);
         const response = await api.get('/swap-request/my-requests');
         setIncomingCount(response.data.incoming.filter(r => r.status === 'PENDING').length);
       } catch (err) {
         console.error('Failed to fetch notification count:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchNotificationCount();
-    const interval = setInterval(fetchNotificationCount, 5000);
+    const interval = setInterval(fetchNotificationCount, 60000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [refreshTrigger]);
 
   const handleLogout = () => {
     logout();

@@ -1,4 +1,4 @@
-import { useState} from "react";
+import { useState } from "react";
 import { formatDateTime } from "../utils/formatDateTime";
 const SwapRequestModal = ({
   isOpen,
@@ -24,6 +24,7 @@ const SwapRequestModal = ({
 
   const handleConfirm = async () => {
     if (!selectedEventId) {
+      console.log("Selected event ID:", selectedEventId, selectedSlot);
       setError("Please select an event to swap");
       return;
     }
@@ -94,6 +95,9 @@ const SwapRequestModal = ({
               onChange={(e) => handleEventSelect(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
+              <option value="" disabled>
+                -- Select your event --
+              </option>
               {swappableEvents.map((event) => (
                 <option key={event._id} value={event._id}>
                   {event.title} ({formatDateTime(event.startTime)})

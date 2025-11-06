@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import IncomingRequestCard from "../components/IncomingRequestCard";
 import OutgoingRequestCard from "../components/OutgoingRequestCard";
 import api from "../utils/api";
+import { useApp } from '../context/AppContext';
 
 function Notifications() {
   const [incomingRequests, setIncomingRequests] = useState([]);
@@ -11,6 +12,8 @@ function Notifications() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+
+  const { refreshTrigger, triggerRefresh } = useApp();
 
   // Fetch swap requests
   const fetchRequests = async () => {
@@ -29,7 +32,7 @@ function Notifications() {
 
   useEffect(() => {
     fetchRequests();
-  }, []);
+  }, [refreshTrigger]);
 
   // Handle accept swap request
   const handleAccept = async (swapRequestId) => {
@@ -43,8 +46,8 @@ function Notifications() {
         "Swap request accepted! Check your dashboard for updates."
       );
 
-      // Refresh requests
-      await fetchRequests();
+      // Trigger global refresh
+      triggerRefresh();
 
       // Clear success message after 4 seconds
       setTimeout(() => setSuccessMessage(""), 4000);
@@ -69,8 +72,8 @@ function Notifications() {
 
       setSuccessMessage("Swap request rejected.");
 
-      // Refresh requests
-      await fetchRequests();
+      // Trigger global refresh
+      triggerRefresh();
 
       // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(""), 3000);
@@ -124,7 +127,7 @@ function Notifications() {
         {loading ? (
           <div className="text-center py-8">Loading swap requests...</div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 ">
             {/* Incoming Requests */}
             <div>
               <h2 className="text-2xl font-bold mb-4">Incoming Requests</h2>
@@ -134,7 +137,7 @@ function Notifications() {
                   No incoming swap requests
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-4 overflow-y-auto max-h-[600px]">
                   {incomingRequests.map((request) => (
                     <IncomingRequestCard
                       key={request._id}
@@ -157,7 +160,7 @@ function Notifications() {
                   No outgoing swap requests
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-4 overflow-y-auto max-h-[600px]">
                   {outgoingRequests.map((request) => (
                     <OutgoingRequestCard key={request._id} request={request} />
                   ))}
@@ -170,7 +173,7 @@ function Notifications() {
         {/* Refresh Button */}
         <div className="mt-8 text-center">
           <button
-            onClick={fetchRequests}
+            onClick={triggerRefresh}
             disabled={loading}
             className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
           >

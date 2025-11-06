@@ -3,11 +3,16 @@ import { formatDateTime } from "../utils/formatDateTime";
 
 function IncomingRequestCard({ request, onAccept, onReject, loading }) {
   const [actionLoading, setActionLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [requestStatus, setRequestStatus] = useState(request.status);
 
   const handleAccept = async () => {
     setActionLoading(true);
     try {
       await onAccept(request._id);
+      setRequestStatus("ACCEPTED");
+    } catch (err) {
+      setError(err.message || "Failed to accept swap request");
     } finally {
       setActionLoading(false);
     }
@@ -17,6 +22,9 @@ function IncomingRequestCard({ request, onAccept, onReject, loading }) {
     setActionLoading(true);
     try {
       await onReject(request._id);
+      setRequestStatus("REJECTED");
+    } catch (err) {
+      setError(err.message || "Failed to reject swap request");
     } finally {
       setActionLoading(false);
     }
@@ -64,22 +72,36 @@ function IncomingRequestCard({ request, onAccept, onReject, loading }) {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-3">
-        <button
-          onClick={handleAccept}
-          disabled={actionLoading || loading}
-          className="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600 disabled:bg-gray-400 transition-colors"
-        >
-          {actionLoading ? "Accepting..." : "Accept"}
-        </button>
-        <button
-          onClick={handleReject}
-          disabled={actionLoading || loading}
-          className="flex-1 bg-red-500 text-white py-2 rounded hover:bg-red-600 disabled:bg-gray-400 transition-colors"
-        >
-          {actionLoading ? "Rejecting..." : "Reject"}
-        </button>
-      </div>
+      {requestStatus === "PENDING" && (
+        <div className="flex gap-3">
+          <button
+            onClick={handleAccept}
+            disabled={actionLoading || loading}
+            className="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600 disabled:bg-gray-400 transition-colors"
+          >
+            {actionLoading ? "Accepting..." : "Accept"}
+          </button>
+          <button
+            onClick={handleReject}
+            disabled={actionLoading || loading}
+            className="flex-1 bg-red-500 text-white py-2 rounded hover:bg-red-600 disabled:bg-gray-400 transition-colors"
+          >
+            {actionLoading ? "Rejecting..." : "Reject"}
+          </button>
+        </div>
+      )}
+      
+      {requestStatus === "ACCEPTED" && (
+        <div className="p-3 bg-green-100 border border-green-400 rounded text-green-800 text-sm">
+          ✓ You have accepted this swap request.
+        </div>
+      )}
+
+      {requestStatus === "REJECTED" && (
+        <div className="p-3 bg-red-100 border border-red-400 rounded text-red-800 text-sm">
+          ✗ You have rejected this swap request.
+        </div>
+      )}
     </div>
   );
 }

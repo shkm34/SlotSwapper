@@ -3,11 +3,13 @@ import Navbar from "../components/Navbar";
 import CreateEventForm from "../components/CreateEventForm";
 import EventList from "../components/EventList";
 import api from "../utils/api";
+import { useApp } from '../context/AppContext';
 
 function Dashboard() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+   const { refreshTrigger, triggerRefresh } = useApp();
 
   // Fetch user's events
   const fetchEvents = async () => {
@@ -25,13 +27,14 @@ function Dashboard() {
 
   useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [refreshTrigger]);
 
   // Create new event
   const handleCreateEvent = async (eventData) => {
     try {
       await api.post("/events", eventData);
-      fetchEvents(); // Refresh list
+      await fetchEvents(); // Local refresh
+      triggerRefresh(); // Global refresh
     } catch (err) {
       throw new Error(err.response?.data?.message || "Failed to create event");
     }
@@ -41,7 +44,8 @@ function Dashboard() {
   const handleStatusToggle = async (eventId, newStatus) => {
     try {
       await api.patch(`/events/${eventId}/status`, { status: newStatus });
-      fetchEvents(); // Refresh list
+      await fetchEvents(); // Local refresh
+      triggerRefresh(); // Global refresh
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update status");
     }
@@ -55,7 +59,8 @@ function Dashboard() {
 
     try {
       await api.delete(`/events/${eventId}`);
-      fetchEvents(); // Refresh list
+     await fetchEvents(); // Local refresh
+      triggerRefresh(); // Global refresh
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete event");
     }
